@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import numpy as np
 import xml.etree.cElementTree as ET
+import json
 
 # The circle class used to construct the hierarchy graph of different circles in one ego network
 class Circle:
@@ -13,7 +14,7 @@ class Circle:
     
 if __name__ == "__main__":
     path = "../../data/facebook/"
-    user_id = 698
+    user_id = 107
     filename_circle = "{0}{1}.circles".format(path, user_id)
     
     with open(filename_circle) as f:
@@ -63,6 +64,12 @@ if __name__ == "__main__":
     tree.write(filename)
     
     
-    
+    # Write the circle hierarchical DAG into a json file
+    edges = [dict(s=i_circle, d=child) for i_circle in range(n_circle - 1) for child in circles[i_circle].children]
+    vertices = {i_circle: {"description": '{0} users: '.format(len(circles[i_circle].members)) + ', '.join(str(x) for x in circles[i_circle].members)} for i_circle in range(n_circle)}
+    data ={"user": user_id, "vertices": vertices, "edges": edges}
+    filename = "{0}.hierarchy.json".format(user_id)
+    with open(filename, 'w') as outfile:
+        json.dump(data, outfile)
     
 
