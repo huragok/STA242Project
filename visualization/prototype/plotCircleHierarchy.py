@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import numpy as np
+import xml.etree.cElementTree as ET
 
 # The circle class used to construct the hierarchy graph of different circles in one ego network
 class Circle:
@@ -45,9 +46,21 @@ if __name__ == "__main__":
             if not(np.any(flag_ancestor[ancestor, ancestor_rest] == 1)): 
                 circles[i_circle].parents.add(circles[ancestor].id)
                 circles[ancestor].children.add(circles[i_circle].id)
-                
+               
     
-    #
+    # Write the circle hierarchical DAG into a xml file
+    root = ET.Element("dag")
+    vertices = ET.SubElement(root, "vertices")
+    edges = ET.SubElement(root, "edges")
+    for i_circle in range(n_circle - 1):
+        ET.SubElement(vertices, "vertex").text = str(i_circle)
+        for child in circles[i_circle].children:
+            edge = ET.SubElement(edges, "edge")
+            ET.SubElement(edge, "s").text = str(i_circle)
+            ET.SubElement(edge, "d").text = str(child)
+    tree = ET.ElementTree(root)
+    filename = "{0}.hierarchy.xml".format(user_id)
+    tree.write(filename)
     
     
     
