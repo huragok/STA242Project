@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 import numpy as np
 
 # The circle class used to construct the hierarchy graph of different circles in one ego network
@@ -20,10 +20,36 @@ if __name__ == "__main__":
         
     lines_str = [line.split('\t') for line in lines_str]
     lines_num = [list(map(int, [line[0][6:]] + line[1:])) for line in lines_str]
-    circles = [Circle(line[0], line[1:]) for line in lines_num]
+    circles = [Circle(idx, line[1:]) for idx, line in enumerate(lines_num)]
     
-    n_cricle = len(circles)
-        
+    n_circle = len(circles)
+    flag_ancestor = np.zeros((n_circle, n_circle), dtype=np.int) # If the i-th circle is a superset of the j-th circle, then we call circle i is an ancector of j or j is an offspring of i. Correspondingly, we set flag_ancestor[i, j] = 1 and flag_ancestor[j, i] = -1. Otherwise, flag_ancestor[i, j] = flag_ancestor[j, i]  = 0
+    list_ancestor = [list() for i_circle in range(n_circle)]
+    for i_circle in range(n_circle - 1):
+        for j_circle in range(i_circle + 1, n_circle):
+            if circles[i_circle].members >= circles[j_circle].members:
+                flag_ancestor[i_circle, j_circle] = 1
+                flag_ancestor[j_circle, i_circle] = -1
+                list_ancestor[j_circle].append(i_circle)
+            elif circles[i_circle].members <= circles[j_circle].members:
+                flag_ancestor[i_circle, j_circle] = -1
+                flag_ancestor[j_circle, i_circle] = 1
+                list_ancestor[i_circle].append(j_circle)
+                
+    
+    # If circle M is a superset of circle N and there is no circle that is both a subset of M and a super set of N, than we call M is a parent of N and N is a child of M. Next we figure out the parental relationship between all circles
+    for i_circle in range(n_circle):
+        for ancestor in list_ancestor[i_circle]:
+            # Check all other ancestors of i_circle
+            ancestor_rest = [a for a in list_ancestor[i_circle] if a != ancestor]
+            if not(np.any(flag_ancestor[ancestor, ancestor_rest] == 1)): 
+                circles[i_circle].parents.add(circles[ancestor].id)
+                circles[ancestor].children.add(circles[i_circle].id)
+                
+    
+    #
+    
+    
     
     
 
