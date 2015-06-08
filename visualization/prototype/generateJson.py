@@ -73,8 +73,8 @@ if __name__ == "__main__":
     lines_str = [line.split(' ') for line in lines_str]
     links_raw = list({tuple(map(int, line)) for line in lines_str})
     for link in links_raw: # Add the rest of the users in the ego network even if they are not in any circle
-        users.setdefault(link[0], set())
-        users.setdefault(link[1], set())
+        users.setdefault(link[0], set([-1,]))
+        users.setdefault(link[1], set([-1,]))
     print(len(users))
     #print(users[2283])
     
@@ -91,9 +91,10 @@ if __name__ == "__main__":
         
     # Convert the circles that a user belong to into a tuple and count the number of circles it belong to
     users = {key: tuple(value) for key, value in users.items()}
-    group_map = {circles: idx for idx, circles in enumerate(sorted(list(set(users.values()))))}
     
-    nodes = [dict(name = key, group = group_map[value], ncircle = len(value), circles = value) for key, value in users.items()]
+    group_map = {circles: idx for idx, circles in enumerate(list(circle_map.keys()) + [-1,])}
+    
+    nodes = [dict(name = key, group = group_map[value[0]], ncircle = len(value), circles = [circle for circle in value if circle != -1]) for key, value in users.items()]
     
     user_map = {value: key for key, value in enumerate(users.keys())}
     links = [dict(source = user_map[link[0]], target = user_map[link[1]], value = 1) for link in links_raw]
