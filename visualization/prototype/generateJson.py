@@ -13,7 +13,7 @@ class Circle:
     
 if __name__ == "__main__":
     path = "../../data/facebook/"
-    user_id = 1912
+    user_id = 698
     filename_circle = "{0}{1}.circles".format(path, user_id)
     
     with open(filename_circle) as f:
@@ -71,8 +71,8 @@ if __name__ == "__main__":
         lines_str = f.read().splitlines()
         
     lines_str = [line.split(' ') for line in lines_str]
-    links = list({tuple(map(int, line)) for line in lines_str})
-    for link in links: # Add the rest of the users in the ego network even if they are not in any circle
+    links_raw = list({tuple(map(int, line)) for line in lines_str})
+    for link in links_raw: # Add the rest of the users in the ego network even if they are not in any circle
         users.setdefault(link[0], set([-1]))
         users.setdefault(link[1], set([-1]))
     print(len(users))
@@ -88,5 +88,22 @@ if __name__ == "__main__":
                     circle_to_remove.add(circle_sup)
                     
         users[user] -= circle_to_remove
+        
+    # Convert the circles that a user belong to into a tuple and count the number of circles it belong to
+    users = {key: tuple(value) for key, value in users.items()}
+    group_map = {circles: idx for idx, circles in enumerate(sorted(list(set(users.values()))))}
+    
+    nodes = [dict(name = key, group = group_map[value], ncircle = len(value), circles = value) for key, value in users.items()]
+    
+    user_map = {value: key for key, value in enumerate(users.keys())}
+    links = [dict(source = user_map[link[0]], target = user_map[link[1]], value = 1) for link in links_raw]
+    
+    filename = "{0}.ego.json".format(user_id)
+    with open(filename, 'w') as outfile:
+        json.dump({"nodes": nodes, "links": links}, outfile, indent=2)
+    
+        
+   
+ 
     
 
