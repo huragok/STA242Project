@@ -73,8 +73,8 @@ if __name__ == "__main__":
     lines_str = [line.split(' ') for line in lines_str]
     links_raw = list({tuple(map(int, line)) for line in lines_str})
     for link in links_raw: # Add the rest of the users in the ego network even if they are not in any circle
-        users.setdefault(link[0], set([-1]))
-        users.setdefault(link[1], set([-1]))
+        users.setdefault(link[0], set())
+        users.setdefault(link[1], set())
     print(len(users))
     #print(users[2283])
     
