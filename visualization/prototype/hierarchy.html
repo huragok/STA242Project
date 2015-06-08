@@ -1,0 +1,525 @@
+<!doctype html>
+
+<meta charset="utf-8">
+<title>Facebook ego network data visualization</title>
+
+<link rel="stylesheet" href="demo.css">
+<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+<script src="./dagre-d3.js"></script>
+
+<!-- Pull in JQuery dependencies -->
+<link rel="stylesheet" href="tipsy.css">
+<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+<script src="tipsy.js"></script>
+
+<h1>Facebook ego network data visualization</h1>
+<h2 id="hierarchy">Circle hierarchy</h2>
+<svg width=960 height=600></svg>
+<h2 id="ego">Ego network</h2>
+
+
+
+
+<style id="css">
+text {
+  font-weight: 300;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serf;
+  font-size: 14px;
+}
+
+.node rect {
+  stroke: #333;
+  fill: #fff;
+}
+
+.edgePath path {
+  stroke: #333;
+  fill: #333;
+  stroke-width: 1.5px;
+}
+
+.node text {
+  pointer-events: none;
+}
+
+.user {
+  stroke: #fff;
+  stroke-width: 1.5px;
+}
+
+.link {
+  stroke: #999;
+  stroke-opacity: .6;
+}
+
+
+/* This styles the title of the tooltip */
+.tipsy .name {
+  font-size: 1.5em;
+  font-weight: bold;
+  color: #60b1fc;
+  margin: 0;
+}
+
+/* This styles the body of the tooltip */
+.tipsy .description {
+  font-size: 1.2em;
+}
+</style>
+
+
+<!--
+<section>
+<p> Hierarchical relationship between circles in ego network in Facebook data for user. Uses <a href="http://bl.ocks.org/ilyabo/1373263">tipsy JS and CSS</a>
+for the tooltip.
+</p>
+</section>
+-->
+
+<script id="js">
+// Create a new directed graph
+var g = new dagreD3.graphlib.Graph().setGraph({});
+
+var data = {"user": 1912, "edges": [{"d": 19, "s": 8}, {"d": 2, "s": 10}, {"d": 28, "s": 10}, {"d": 6, "s": 10}, {"d": 9, "s": 15}, {"d": 2, "s": 15}, {"d": 19, "s": 15}, {"d": 22, "s": 19}, {"d": 3, "s": 20}, {"d": 28, "s": 20}, {"d": 44, "s": 20}, {"d": 30, "s": 21}, {"d": 19, "s": 23}, {"d": 25, "s": 24}, {"d": 19, "s": 38}, {"d": 6, "s": 38}, {"d": 28, "s": 39}, {"d": 24, "s": 41}, {"d": 9, "s": 41}, {"d": 2, "s": 41}], "vertices": {"0": {"description": "7 users: 2183, 2540, 2094, 2543, 1941, 2332, 2047"}, "1": {"description": "70 users: 1921, 1927, 1928, 136, 2571, 1931, 2447, 2192, 1935, 2583, 2585, 2459, 1950, 1951, 2143, 2337, 1954, 2341, 2472, 2346, 1968, 2097, 1976, 2364, 2620, 2494, 2626, 2627, 2116, 1991, 2633, 2378, 1995, 2636, 1998, 2639, 2640, 1999, 2000, 2001, 2004, 2645, 2006, 2647, 2648, 2009, 2011, 2268, 2012, 2014, 2015, 2016, 2657, 2658, 2659, 2020, 2660, 2022, 2018, 2024, 2025, 2538, 2027, 2284, 2157, 2159, 2297, 1914, 2171, 1919"}, "2": {"description": "1 users: 2456"}, "3": {"description": "4 users: 2369, 2059, 2108, 2046"}, "4": {"description": "11 users: 2531, 2439, 2375, 2185, 2217, 2219, 2254, 2548, 2461, 2558, 2621"}, "5": {"description": "6 users: 2498, 1959, 2567, 2153, 2026, 2191"}, "6": {"description": "3 users: 1923, 1947, 2134"}, "7": {"description": "12 users: 2502, 2125, 2543, 2224, 2643, 2516, 2163, 2582, 2519, 2295, 2649, 2298"}, "8": {"description": "10 users: 2304, 2052, 2246, 2247, 2283, 2099, 2358, 2230, 2555, 2461"}, "9": {"description": "1 users: 2523"}, "10": {"description": "27 users: 1923, 2437, 2455, 2456, 1947, 2204, 2468, 2470, 2344, 428, 2096, 563, 1465, 2111, 2241, 1985, 2382, 2134, 2266, 2142, 2541, 2543, 2034, 2421, 2042, 2174, 2047"}, "11": {"description": "19 users: 2176, 2209, 1923, 2211, 2310, 2186, 1964, 2318, 2031, 2416, 2641, 2610, 2419, 2133, 2038, 2325, 2296, 2557, 2525"}, "12": {"description": "7 users: 2561, 2506, 2348, 2573, 2098, 2137, 2426"}, "13": {"description": "4 users: 2528, 2425, 1956, 2558"}, "14": {"description": "4 users: 2512, 2560, 2142, 2134"}, "15": {"description": "50 users: 1922, 2437, 2565, 2183, 2316, 2062, 2577, 2581, 2455, 2456, 2328, 2458, 2587, 2332, 1949, 2204, 2336, 2598, 2470, 2605, 2221, 2224, 2096, 2231, 2232, 1465, 2114, 2243, 2501, 2120, 1996, 2125, 2382, 1999, 2642, 2649, 2266, 2523, 2142, 2017, 2023, 2283, 2156, 2542, 2421, 2424, 2168, 2042, 1915, 2041"}, "16": {"description": "7 users: 2113, 2375, 2439, 2217, 2100, 2548, 2621"}, "17": {"description": "4 users: 2560, 2521, 2081, 2182"}, "18": {"description": "3 users: 2577, 2298, 2230"}, "19": {"description": "1 users: 2283"}, "20": {"description": "232 users: 2560, 2561, 2048, 2563, 2564, 2055, 2056, 2059, 2060, 2573, 2572, 2575, 2063, 2064, 2578, 2579, 2067, 2069, 2576, 2574, 2584, 2073, 2586, 2074, 2077, 2078, 2591, 2590, 2593, 2083, 2084, 2086, 2088, 2600, 2090, 2602, 2092, 2093, 2604, 2607, 2606, 2601, 2098, 2611, 2095, 2613, 2615, 2104, 2103, 2619, 2108, 2109, 2623, 2112, 2624, 2625, 2115, 2118, 2630, 2631, 2121, 2122, 2123, 2124, 2638, 2131, 2646, 2136, 2139, 2140, 2142, 2655, 2654, 2147, 2150, 2154, 2164, 2165, 2172, 2179, 2184, 2188, 2189, 2190, 2200, 2201, 2206, 2210, 2212, 2216, 2218, 2220, 2229, 2233, 2234, 2237, 2240, 2244, 2253, 2257, 2258, 2261, 2262, 2266, 2267, 2271, 2275, 2276, 2278, 2287, 2288, 2290, 2293, 2299, 2300, 2306, 2307, 2308, 2309, 2311, 2323, 2324, 2326, 2329, 2334, 2339, 2340, 2347, 2348, 2350, 2352, 2353, 2354, 2356, 2359, 2363, 2369, 2370, 2374, 2376, 2381, 2386, 2387, 2391, 2392, 2393, 2395, 2404, 2407, 2408, 2409, 2410, 2414, 2418, 2423, 2428, 1917, 1918, 2430, 2433, 1925, 1929, 2442, 2443, 2446, 2449, 1938, 1941, 1942, 1943, 1946, 2460, 2462, 2464, 1953, 2468, 2469, 1962, 1963, 2476, 2477, 2478, 1966, 1969, 2482, 1971, 2484, 2485, 2489, 1979, 2492, 2495, 1984, 1985, 1986, 2499, 2500, 1989, 1983, 2504, 1993, 2506, 2507, 1997, 2512, 2005, 2007, 2520, 2521, 2526, 2019, 2020, 2021, 2532, 2536, 2539, 2030, 2543, 2542, 2033, 2546, 2549, 2550, 2551, 2040, 2553, 2037, 2043, 2556, 2045, 2046, 2559"}, "21": {"description": "60 users: 2432, 2177, 2434, 2053, 2054, 2438, 2568, 2062, 2451, 1939, 2327, 2072, 2328, 2458, 2075, 1947, 2333, 2199, 2081, 1959, 2344, 2603, 428, 2221, 2222, 2479, 1967, 2096, 1970, 563, 2101, 2617, 58, 2235, 1981, 2110, 2111, 2243, 2501, 2377, 2252, 2509, 2511, 2384, 2002, 2003, 2132, 2390, 2394, 2652, 2396, 2399, 2274, 2280, 2537, 2282, 2415, 2161, 2294, 2301"}, "22": {"description": "1 users: 2283"}, "23": {"description": "7 users: 1952, 2114, 2283, 2321, 2034, 2260, 2431"}, "24": {"description": "1 users: 2106"}, "25": {"description": "1 users: 2106"}, "26": {"description": "5 users: 2512, 2241, 1985, 2062, 1959"}, "27": {"description": "20 users: 2399, 2401, 2466, 1988, 1992, 2376, 2444, 2349, 2255, 2320, 2513, 2259, 2515, 2486, 2426, 2170, 2650, 2076, 2398, 2622"}, "28": {"description": "1 users: 2468"}, "29": {"description": "5 users: 2215, 2057, 2385, 1987, 1959"}, "30": {"description": "4 users: 58, 563, 428, 1967"}, "31": {"description": "14 users: 1957, 1958, 2376, 2121, 2218, 2061, 2225, 1972, 1973, 2518, 1943, 2395, 1980, 2365"}, "32": {"description": "6 users: 2595, 2443, 2483, 2457, 2588, 2527"}, "33": {"description": "12 users: 2143, 2436, 2629, 2278, 136, 2635, 2544, 2128, 2292, 2042, 2302, 2463"}, "34": {"description": "10 users: 2245, 2535, 1961, 2570, 2094, 2126, 2481, 2167, 2487, 2301"}, "35": {"description": "11 users: 2081, 2149, 2598, 1577, 1961, 2128, 2292, 2518, 1465, 2491, 2268"}, "36": {"description": "75 users: 2177, 2051, 2312, 2057, 2441, 2568, 2445, 2448, 2065, 2066, 2450, 2449, 2067, 2454, 1952, 2082, 1956, 2214, 2215, 2345, 2605, 2349, 2099, 2227, 2100, 2614, 2358, 2355, 1977, 2230, 2488, 2113, 2497, 2371, 1987, 2628, 2502, 2632, 2249, 2251, 2252, 2256, 2513, 2129, 2514, 2130, 2517, 2389, 2263, 2128, 2265, 2010, 2137, 2524, 2270, 2400, 2529, 2402, 2531, 2530, 2528, 2534, 2026, 2413, 2544, 2288, 2291, 2036, 2422, 2295, 2169, 2298, 1915, 1913, 2431"}, "37": {"description": "5 users: 2318, 1970, 2003, 2222, 2415"}, "38": {"description": "133 users: 2052, 2053, 2054, 2567, 2571, 2068, 2582, 2071, 2072, 2589, 2592, 2081, 2594, 2597, 2598, 2087, 1577, 2608, 2610, 2102, 2616, 2111, 2629, 2117, 2635, 2125, 2127, 2642, 2643, 2133, 2134, 2135, 2649, 2138, 2143, 2148, 2149, 2151, 2153, 2163, 2169, 2174, 2176, 2183, 136, 2187, 2189, 2191, 2194, 2196, 2199, 2203, 2209, 2223, 2224, 1718, 2241, 2246, 2247, 2250, 2254, 2259, 2268, 2273, 2274, 2279, 2280, 2282, 2283, 2289, 2292, 2294, 2302, 2304, 2315, 2319, 2328, 2332, 2333, 2336, 2338, 2343, 2347, 2351, 2367, 2372, 2377, 2384, 2394, 2398, 2399, 2416, 2419, 2420, 1920, 1923, 2436, 2438, 1932, 2445, 2451, 1941, 1945, 2458, 1947, 1948, 2461, 2463, 1954, 1955, 2471, 2472, 2473, 2475, 1465, 2491, 2496, 2498, 1994, 2511, 2516, 2519, 2007, 2010, 2533, 2028, 2543, 2032, 2038, 2039, 2042, 2555, 2047"}, "39": {"description": "4 users: 2344, 2289, 2328, 2468"}, "40": {"description": "15 users: 2144, 2241, 2273, 2465, 2052, 2054, 2598, 2151, 2599, 2032, 2609, 2642, 2102, 1945, 2653"}, "41": {"description": "161 users: 2049, 2562, 2051, 2565, 2566, 2569, 2570, 2577, 2580, 2581, 2070, 2587, 2080, 2082, 2085, 2089, 2603, 2091, 2610, 2612, 2614, 2105, 2618, 2106, 2114, 2628, 2117, 2119, 2120, 2632, 2634, 2637, 2126, 2129, 2642, 2130, 2133, 2141, 2656, 2145, 2146, 2659, 2152, 2155, 2156, 2158, 2160, 2162, 2168, 2173, 2174, 2175, 2176, 2178, 2181, 2182, 2186, 2193, 2197, 2204, 2209, 2211, 2227, 2228, 2231, 2232, 2236, 2238, 2242, 2248, 2251, 2260, 2272, 2277, 2286, 2289, 2296, 2310, 2313, 2314, 2316, 2317, 2318, 2321, 2322, 2325, 2331, 2335, 2341, 2342, 2345, 2357, 2360, 2361, 2362, 2366, 2367, 2371, 2373, 2379, 2382, 2388, 2397, 2402, 2403, 2405, 2406, 2411, 2412, 2416, 2419, 2421, 2424, 1915, 1922, 1923, 2437, 1926, 2440, 1930, 1933, 1934, 1936, 1937, 2448, 2452, 2455, 2456, 1944, 1949, 1960, 2473, 2474, 1964, 1965, 2480, 1975, 1978, 2497, 2498, 1990, 2503, 1996, 2008, 2523, 2013, 2525, 2017, 2534, 2023, 2540, 2029, 2541, 2031, 2034, 2035, 2036, 2038, 2041, 2557, 2047"}, "42": {"description": "14 users: 2400, 2529, 2531, 2372, 2312, 2250, 2319, 2384, 2355, 2389, 1976, 2616, 1913, 2203"}, "43": {"description": "4 users: 2134, 2459, 2598, 2470"}, "44": {"description": "8 users: 1984, 2433, 2244, 2575, 2229, 2073, 2586, 2619"}, "45": {"description": "5 users: 2208, 2505, 2651, 2453, 1974"}}}
+
+
+document.getElementById("hierarchy").innerHTML = "Circle hierarchy for User " + data.user;
+
+
+Object.keys(data.vertices).forEach(function(vertex) {
+  var value = data.vertices[vertex];
+  value.label = "Circle" + vertex;
+  value.rx = value.ry = 5;
+  g.setNode(vertex, value);
+});
+
+var iEdge = 0
+for (iEdge = 0; iEdge < data.edges.length; iEdge++) {
+    g.setEdge(data.edges[iEdge].s, data.edges[iEdge].d, { label: "" });
+}
+
+// Create the renderer
+var render = new dagreD3.render();
+
+// Set up an SVG group so that we can translate the final graph.
+var svg = d3.select("svg"),
+    inner = svg.append("g");
+
+// Set up zoom support
+var zoom = d3.behavior.zoom().on("zoom", function() {
+    inner.attr("transform", "translate(" + d3.event.translate + ")" +
+                                "scale(" + d3.event.scale + ")");
+  });
+svg.call(zoom);
+
+// Simple function to style the tooltip for the given node.
+var styleTooltip = function(name, description) {
+  return "<p class='name'>" + "Circle" + name + "</p><p class='description'>" + description + "</p>";
+};
+
+// Run the renderer. This is what draws the final graph.
+render(inner, g);
+
+inner.selectAll("g.node")
+  .attr("title", function(v) { return styleTooltip(v, g.node(v).description) })
+  .each(function(v) { $(this).tipsy({ gravity: "w", opacity: 1, html: true }); });
+
+// Center the graph
+var initialScale = 0.75;
+zoom
+  .translate([(svg.attr("width") - g.graph().width * initialScale) / 2, 20])
+  .scale(initialScale)
+  .event(svg);
+svg.attr('height', g.graph().height * initialScale + 40);
+
+// For the FDG
+var width = 960,
+    height = 500;
+    
+var color = d3.scale.category20();
+
+var force = d3.layout.force()
+    .charge(-120)
+    .linkDistance(30)
+    .size([width, height]);
+
+var svg = d3.select("h2#ego").append("svg")
+    .attr("width", width)
+    .attr("height", height);
+    
+//d3.json("miserables.json", function(error, graph) {
+
+    var graph = {
+      "nodes":  [
+        { "name": "Myriel",             "group":  1 },
+        { "name": "Napoleon",           "group":  1 },
+        { "name": "Mlle.Baptistine",    "group":  1 },
+        { "name": "Mme.Magloire",       "group":  1 },
+        { "name": "CountessdeLo",       "group":  1 },
+        { "name": "Geborand",           "group":  1 },
+        { "name": "Champtercier",       "group":  1 },
+        { "name": "Cravatte",           "group":  1 },
+        { "name": "Count",              "group":  1 },
+        { "name": "OldMan",             "group":  1 },
+        { "name": "Labarre",            "group":  2 },
+        { "name": "Valjean",            "group":  2 },
+        { "name": "Marguerite",         "group":  3 },
+        { "name": "Mme.deR",            "group":  2 },
+        { "name": "Isabeau",            "group":  2 },
+        { "name": "Gervais",            "group":  2 },
+        { "name": "Tholomyes",          "group":  3 },
+        { "name": "Listolier",          "group":  3 },
+        { "name": "Fameuil",            "group":  3 },
+        { "name": "Blacheville",        "group":  3 },
+        { "name": "Favourite",          "group":  3 },
+        { "name": "Dahlia",             "group":  3 },
+        { "name": "Zephine",            "group":  3 },
+        { "name": "Fantine",            "group":  3 },
+        { "name": "Mme.Thenardier",     "group":  4 },
+        { "name": "Thenardier",         "group":  4 },
+        { "name": "Cosette",            "group":  5 },
+        { "name": "Javert",             "group":  4 },
+        { "name": "Fauchelevent",       "group":  0 },
+        { "name": "Bamatabois",         "group":  2 },
+        { "name": "Perpetue",           "group":  3 },
+        { "name": "Simplice",           "group":  2 },
+        { "name": "Scaufflaire",        "group":  2 },
+        { "name": "Woman1",             "group":  2 },
+        { "name": "Judge",              "group":  2 },
+        { "name": "Champmathieu",       "group":  2 },
+        { "name": "Brevet",             "group":  2 },
+        { "name": "Chenildieu",         "group":  2 },
+        { "name": "Cochepaille",        "group":  2 },
+        { "name": "Pontmercy",          "group":  4 },
+        { "name": "Boulatruelle",       "group":  6 },
+        { "name": "Eponine",            "group":  4 },
+        { "name": "Anzelma",            "group":  4 },
+        { "name": "Woman2",             "group":  5 },
+        { "name": "MotherInnocent",     "group":  0 },
+        { "name": "Gribier",            "group":  0 },
+        { "name": "Jondrette",          "group":  7 },
+        { "name": "Mme.Burgon",         "group":  7 },
+        { "name": "Gavroche",           "group":  8 },
+        { "name": "Gillenormand",       "group":  5 },
+        { "name": "Magnon",             "group":  5 },
+        { "name": "Mlle.Gillenormand",  "group":  5 },
+        { "name": "Mme.Pontmercy",      "group":  5 },
+        { "name": "Mlle.Vaubois",       "group":  5 },
+        { "name": "Lt.Gillenormand",    "group":  5 },
+        { "name": "Marius",             "group":  8 },
+        { "name": "BaronessT",          "group":  5 },
+        { "name": "Mabeuf",             "group":  8 },
+        { "name": "Enjolras",           "group":  8 },
+        { "name": "Combeferre",         "group":  8 },
+        { "name": "Prouvaire",          "group":  8 },
+        { "name": "Feuilly",            "group":  8 },
+        { "name": "Courfeyrac",         "group":  8 },
+        { "name": "Bahorel",            "group":  8 },
+        { "name": "Bossuet",            "group":  8 },
+        { "name": "Joly",               "group":  8 },
+        { "name": "Grantaire",          "group":  8 },
+        { "name": "MotherPlutarch",     "group":  0 },
+        { "name": "Gueulemer",          "group":  4 },
+        { "name": "Babet",              "group":  4 },
+        { "name": "Claquesous",         "group":  4 },
+        { "name": "Montparnasse",       "group":  4 },
+        { "name": "Toussaint",          "group":  5 },
+        { "name": "Child1",             "group": 10 },
+        { "name": "Child2",             "group": 10 },
+        { "name": "Brujon",             "group":  4 },
+        { "name": "Mme.Hucheloup",      "group":  8 }
+      ],
+
+      "links":  [
+        { "source":  1,  "target":  0,  "value":  1 },
+        { "source":  2,  "target":  0,  "value":  8 },
+        { "source":  3,  "target":  0,  "value": 10 },
+        { "source":  3,  "target":  2,  "value":  6 },
+        { "source":  4,  "target":  0,  "value":  1 },
+        { "source":  5,  "target":  0,  "value":  1 },
+        { "source":  6,  "target":  0,  "value":  1 },
+        { "source":  7,  "target":  0,  "value":  1 },
+        { "source":  8,  "target":  0,  "value":  2 },
+        { "source":  0,  "target":  0,  "value":  1 },
+        { "source": 11,  "target": 10,  "value":  1 },
+        { "source": 11,  "target":  3,  "value":  3 },
+        { "source": 11,  "target":  2,  "value":  3 },
+        { "source": 11,  "target":  0,  "value":  5 },
+        { "source": 12,  "target": 11,  "value":  1 },
+        { "source": 13,  "target": 11,  "value":  1 },
+        { "source": 14,  "target": 11,  "value":  1 },
+        { "source": 15,  "target": 11,  "value":  1 },
+        { "source": 17,  "target": 16,  "value":  4 },
+        { "source": 18,  "target": 16,  "value":  4 },
+        { "source": 18,  "target": 17,  "value":  4 },
+        { "source": 19,  "target": 16,  "value":  4 },
+        { "source": 19,  "target": 17,  "value":  4 },
+        { "source": 19,  "target": 18,  "value":  4 },
+        { "source": 20,  "target": 16,  "value":  3 },
+        { "source": 20,  "target": 17,  "value":  3 },
+        { "source": 20,  "target": 18,  "value":  3 },
+        { "source": 20,  "target": 19,  "value":  4 },
+        { "source": 21,  "target": 16,  "value":  3 },
+        { "source": 21,  "target": 17,  "value":  3 },
+        { "source": 21,  "target": 18,  "value":  3 },
+        { "source": 21,  "target": 19,  "value":  3 },
+        { "source": 21,  "target": 20,  "value":  5 },
+        { "source": 22,  "target": 16,  "value":  3 },
+        { "source": 22,  "target": 17,  "value":  3 },
+        { "source": 22,  "target": 18,  "value":  3 },
+        { "source": 22,  "target": 19,  "value":  3 },
+        { "source": 22,  "target": 20,  "value":  4 },
+        { "source": 22,  "target": 21,  "value":  4 },
+        { "source": 23,  "target": 16,  "value":  3 },
+        { "source": 23,  "target": 17,  "value":  3 },
+        { "source": 23,  "target": 18,  "value":  3 },
+        { "source": 23,  "target": 19,  "value":  3 },
+        { "source": 23,  "target": 20,  "value":  4 },
+        { "source": 23,  "target": 21,  "value":  4 },
+        { "source": 23,  "target": 22,  "value":  4 },
+        { "source": 23,  "target": 12,  "value":  2 },
+        { "source": 23,  "target": 11,  "value":  0 },
+        { "source": 24,  "target": 23,  "value":  2 },
+        { "source": 24,  "target": 11,  "value":  7 },
+        { "source": 25,  "target": 24,  "value": 13 },
+        { "source": 25,  "target": 23,  "value":  1 },
+        { "source": 25,  "target": 11,  "value": 12 },
+        { "source": 26,  "target": 24,  "value":  4 },
+        { "source": 26,  "target": 11,  "value": 31 },
+        { "source": 26,  "target": 16,  "value":  1 },
+        { "source": 26,  "target": 25,  "value":  1 },
+        { "source": 27,  "target": 11,  "value": 17 },
+        { "source": 27,  "target": 23,  "value":  5 },
+        { "source": 27,  "target": 25,  "value":  5 },
+        { "source": 27,  "target": 24,  "value":  1 },
+        { "source": 27,  "target": 26,  "value":  1 },
+        { "source": 28,  "target": 11,  "value":  8 },
+        { "source": 28,  "target": 27,  "value":  1 },
+        { "source": 29,  "target": 23,  "value":  1 },
+        { "source": 29,  "target": 27,  "value":  1 },
+        { "source": 29,  "target": 11,  "value":  2 },
+        { "source": 30,  "target": 23,  "value":  1 },
+        { "source": 31,  "target": 30,  "value":  2 },
+        { "source": 31,  "target": 11,  "value":  3 },
+        { "source": 31,  "target": 23,  "value":  2 },
+        { "source": 31,  "target": 27,  "value":  1 },
+        { "source": 32,  "target": 11,  "value":  1 },
+        { "source": 33,  "target": 11,  "value":  2 },
+        { "source": 33,  "target": 27,  "value":  1 },
+        { "source": 34,  "target": 11,  "value":  3 },
+        { "source": 34,  "target": 29,  "value":  2 },
+        { "source": 35,  "target": 11,  "value":  3 },
+        { "source": 35,  "target": 34,  "value":  3 },
+        { "source": 35,  "target": 29,  "value":  2 },
+        { "source": 36,  "target": 34,  "value":  2 },
+        { "source": 36,  "target": 35,  "value":  2 },
+        { "source": 36,  "target": 11,  "value":  2 },
+        { "source": 36,  "target": 29,  "value":  1 },
+        { "source": 37,  "target": 34,  "value":  2 },
+        { "source": 37,  "target": 35,  "value":  2 },
+        { "source": 37,  "target": 36,  "value":  2 },
+        { "source": 37,  "target": 11,  "value":  2 },
+        { "source": 37,  "target": 29,  "value":  1 },
+        { "source": 38,  "target": 34,  "value":  2 },
+        { "source": 38,  "target": 35,  "value":  2 },
+        { "source": 38,  "target": 36,  "value":  2 },
+        { "source": 38,  "target": 37,  "value":  2 },
+        { "source": 38,  "target": 11,  "value":  2 },
+        { "source": 38,  "target": 29,  "value":  1 },
+        { "source": 39,  "target": 25,  "value":  1 },
+        { "source": 40,  "target": 25,  "value":  1 },
+        { "source": 41,  "target": 24,  "value":  2 },
+        { "source": 41,  "target": 25,  "value":  3 },
+        { "source": 42,  "target": 41,  "value":  2 },
+        { "source": 42,  "target": 25,  "value":  2 },
+        { "source": 42,  "target": 24,  "value":  1 },
+        { "source": 43,  "target": 11,  "value":  3 },
+        { "source": 43,  "target": 26,  "value":  1 },
+        { "source": 43,  "target": 27,  "value":  1 },
+        { "source": 44,  "target": 28,  "value":  3 },
+        { "source": 44,  "target": 11,  "value":  1 },
+        { "source": 45,  "target": 28,  "value":  2 },
+        { "source": 47,  "target": 46,  "value":  1 },
+        { "source": 48,  "target": 47,  "value":  2 },
+        { "source": 48,  "target": 25,  "value":  1 },
+        { "source": 48,  "target": 27,  "value":  1 },
+        { "source": 48,  "target": 11,  "value":  1 },
+        { "source": 49,  "target": 26,  "value":  3 },
+        { "source": 49,  "target": 11,  "value":  2 },
+        { "source": 50,  "target": 49,  "value":  1 },
+        { "source": 50,  "target": 24,  "value":  1 },
+        { "source": 51,  "target": 49,  "value":  0 },
+        { "source": 51,  "target": 26,  "value":  2 },
+        { "source": 51,  "target": 11,  "value":  2 },
+        { "source": 52,  "target": 51,  "value":  1 },
+        { "source": 52,  "target": 39,  "value":  1 },
+        { "source": 53,  "target": 51,  "value":  1 },
+        { "source": 54,  "target": 51,  "value":  2 },
+        { "source": 54,  "target": 49,  "value":  1 },
+        { "source": 54,  "target": 26,  "value":  1 },
+        { "source": 55,  "target": 51,  "value":  6 },
+        { "source": 55,  "target": 49,  "value": 12 },
+        { "source": 55,  "target": 39,  "value":  1 },
+        { "source": 55,  "target": 54,  "value":  1 },
+        { "source": 55,  "target": 26,  "value": 21 },
+        { "source": 55,  "target": 11,  "value": 19 },
+        { "source": 55,  "target": 16,  "value":  1 },
+        { "source": 55,  "target": 25,  "value":  2 },
+        { "source": 55,  "target": 41,  "value":  5 },
+        { "source": 55,  "target": 48,  "value":  4 },
+        { "source": 56,  "target": 49,  "value":  1 },
+        { "source": 56,  "target": 55,  "value":  1 },
+        { "source": 57,  "target": 55,  "value":  1 },
+        { "source": 57,  "target": 41,  "value":  1 },
+        { "source": 57,  "target": 48,  "value":  1 },
+        { "source": 58,  "target": 55,  "value":  7 },
+        { "source": 58,  "target": 48,  "value":  7 },
+        { "source": 58,  "target": 27,  "value":  6 },
+        { "source": 58,  "target": 57,  "value":  1 },
+        { "source": 58,  "target": 11,  "value":  4 },
+        { "source": 59,  "target": 58,  "value": 15 },
+        { "source": 59,  "target": 55,  "value":  5 },
+        { "source": 59,  "target": 48,  "value":  6 },
+        { "source": 59,  "target": 57,  "value":  2 },
+        { "source": 60,  "target": 48,  "value":  1 },
+        { "source": 60,  "target": 58,  "value":  4 },
+        { "source": 60,  "target": 59,  "value":  2 },
+        { "source": 61,  "target": 48,  "value":  2 },
+        { "source": 61,  "target": 58,  "value":  6 },
+        { "source": 61,  "target": 60,  "value":  2 },
+        { "source": 61,  "target": 59,  "value":  5 },
+        { "source": 61,  "target": 57,  "value":  1 },
+        { "source": 61,  "target": 55,  "value":  1 },
+        { "source": 62,  "target": 55,  "value":  0 },
+        { "source": 62,  "target": 58,  "value": 17 },
+        { "source": 62,  "target": 59,  "value": 13 },
+        { "source": 62,  "target": 48,  "value":  7 },
+        { "source": 62,  "target": 57,  "value":  2 },
+        { "source": 62,  "target": 41,  "value":  1 },
+        { "source": 62,  "target": 61,  "value":  6 },
+        { "source": 62,  "target": 60,  "value":  3 },
+        { "source": 63,  "target": 59,  "value":  5 },
+        { "source": 63,  "target": 48,  "value":  5 },
+        { "source": 63,  "target": 62,  "value":  6 },
+        { "source": 63,  "target": 57,  "value":  2 },
+        { "source": 63,  "target": 58,  "value":  4 },
+        { "source": 63,  "target": 61,  "value":  3 },
+        { "source": 63,  "target": 60,  "value":  2 },
+        { "source": 63,  "target": 55,  "value":  1 },
+        { "source": 64,  "target": 55,  "value":  5 },
+        { "source": 64,  "target": 62,  "value": 12 },
+        { "source": 64,  "target": 48,  "value":  5 },
+        { "source": 64,  "target": 63,  "value":  4 },
+        { "source": 64,  "target": 58,  "value": 10 },
+        { "source": 64,  "target": 61,  "value":  6 },
+        { "source": 64,  "target": 60,  "value":  2 },
+        { "source": 64,  "target": 59,  "value":  0 },
+        { "source": 64,  "target": 57,  "value":  1 },
+        { "source": 64,  "target": 11,  "value":  1 },
+        { "source": 65,  "target": 63,  "value":  5 },
+        { "source": 65,  "target": 64,  "value":  7 },
+        { "source": 65,  "target": 48,  "value":  3 },
+        { "source": 65,  "target": 62,  "value":  5 },
+        { "source": 65,  "target": 58,  "value":  5 },
+        { "source": 65,  "target": 61,  "value":  5 },
+        { "source": 65,  "target": 60,  "value":  2 },
+        { "source": 65,  "target": 59,  "value":  5 },
+        { "source": 65,  "target": 57,  "value":  1 },
+        { "source": 65,  "target": 55,  "value":  2 },
+        { "source": 66,  "target": 64,  "value":  3 },
+        { "source": 66,  "target": 58,  "value":  3 },
+        { "source": 66,  "target": 59,  "value":  1 },
+        { "source": 66,  "target": 62,  "value":  2 },
+        { "source": 66,  "target": 65,  "value":  2 },
+        { "source": 66,  "target": 48,  "value":  1 },
+        { "source": 66,  "target": 63,  "value":  1 },
+        { "source": 66,  "target": 61,  "value":  1 },
+        { "source": 66,  "target": 60,  "value":  1 },
+        { "source": 67,  "target": 57,  "value":  3 },
+        { "source": 68,  "target": 25,  "value":  5 },
+        { "source": 68,  "target": 11,  "value":  1 },
+        { "source": 68,  "target": 24,  "value":  1 },
+        { "source": 68,  "target": 27,  "value":  1 },
+        { "source": 68,  "target": 48,  "value":  1 },
+        { "source": 68,  "target": 41,  "value":  1 },
+        { "source": 69,  "target": 25,  "value":  6 },
+        { "source": 69,  "target": 68,  "value":  6 },
+        { "source": 69,  "target": 11,  "value":  1 },
+        { "source": 69,  "target": 24,  "value":  1 },
+        { "source": 69,  "target": 27,  "value":  2 },
+        { "source": 69,  "target": 48,  "value":  1 },
+        { "source": 69,  "target": 41,  "value":  1 },
+        { "source": 70,  "target": 25,  "value":  4 },
+        { "source": 70,  "target": 69,  "value":  4 },
+        { "source": 70,  "target": 68,  "value":  4 },
+        { "source": 70,  "target": 11,  "value":  1 },
+        { "source": 70,  "target": 24,  "value":  1 },
+        { "source": 70,  "target": 27,  "value":  1 },
+        { "source": 70,  "target": 41,  "value":  1 },
+        { "source": 70,  "target": 58,  "value":  1 },
+        { "source": 71,  "target": 27,  "value":  1 },
+        { "source": 71,  "target": 69,  "value":  2 },
+        { "source": 71,  "target": 68,  "value":  2 },
+        { "source": 71,  "target": 70,  "value":  2 },
+        { "source": 71,  "target": 11,  "value":  1 },
+        { "source": 71,  "target": 48,  "value":  1 },
+        { "source": 71,  "target": 41,  "value":  1 },
+        { "source": 71,  "target": 25,  "value":  1 },
+        { "source": 72,  "target": 26,  "value":  2 },
+        { "source": 72,  "target": 27,  "value":  1 },
+        { "source": 72,  "target": 11,  "value":  1 },
+        { "source": 73,  "target": 48,  "value":  2 },
+        { "source": 74,  "target": 48,  "value":  2 },
+        { "source": 74,  "target": 73,  "value":  3 },
+        { "source": 75,  "target": 69,  "value":  3 },
+        { "source": 75,  "target": 68,  "value":  3 },
+        { "source": 75,  "target": 25,  "value":  3 },
+        { "source": 75,  "target": 48,  "value":  1 },
+        { "source": 75,  "target": 41,  "value":  1 },
+        { "source": 75,  "target": 70,  "value":  1 },
+        { "source": 75,  "target": 71,  "value":  1 },
+        { "source": 76,  "target": 64,  "value":  1 },
+        { "source": 76,  "target": 65,  "value":  1 },
+        { "source": 76,  "target": 66,  "value":  1 },
+        { "source": 76,  "target": 63,  "value":  1 },
+        { "source": 76,  "target": 62,  "value":  1 },
+        { "source": 76,  "target": 48,  "value":  1 },
+        { "source": 76,  "target": 58,  "value":  1 }
+      ]
+    };
+
+  force
+      .nodes(graph.nodes)
+      .links(graph.links)
+      .start();
+
+  var link = svg.selectAll(".link")
+      .data(graph.links)
+    .enter().append("line")
+      .attr("class", "link")
+      .style("stroke-width", function(d) { return Math.sqrt(d.value); });
+
+  var node = svg.selectAll(".user")
+      .data(graph.nodes)
+    .enter().append("circle")
+      .attr("class", "user")
+      .attr("r", 5)
+      .style("fill", function(d) { return color(d.group); })
+      .call(force.drag);
+
+  node.append("title")
+      .text(function(d) { return d.name; });
+
+  force.on("tick", function() {
+    link.attr("x1", function(d) { return d.source.x; })
+        .attr("y1", function(d) { return d.source.y; })
+        .attr("x2", function(d) { return d.target.x; })
+        .attr("y2", function(d) { return d.target.y; });
+
+    node.attr("cx", function(d) { return d.x; })
+        .attr("cy", function(d) { return d.y; });
+  });
+//});
+    
+</script>
+
