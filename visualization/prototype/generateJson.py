@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import numpy as np
 import json
+import random
 
 # The circle class used to construct the hierarchy graph of different circles in one ego network
 class Circle:
@@ -13,7 +14,7 @@ class Circle:
     
 if __name__ == "__main__":
     path = "../../data/facebook/"
-    user_id = 0
+    user_id = 1912
     filename_circle = "{0}{1}.circles".format(path, user_id)
     
     with open(filename_circle) as f:
@@ -22,9 +23,10 @@ if __name__ == "__main__":
     lines_str = [line.split('\t') for line in lines_str]
     lines_num = [list(map(int, [line[0][6:]] + line[1:])) for line in lines_str]
     #FIXME remove identical circles
-    member_id = {tuple(line[1:]): idx for idx, line in enumerate(lines_num)}
+    #member_id = {tuple(line[1:]): idx for idx, line in enumerate(lines_num)}
+    #circles = [Circle(idx, list(member)) for member, idx in member_id.items()]
     
-    circles = [Circle(idx, list(member)) for member, idx in member_id.items()]
+    circles = [Circle(idx, list(line[1:])) for idx, line in enumerate(lines_num)]
     
     n_circle = len(circles)
     flag_ancestor = np.zeros((n_circle, n_circle), dtype=np.int) # If the i-th circle is a superset of the j-th circle, then we call circle i is an ancector of j or j is an offspring of i. Correspondingly, we set flag_ancestor[i, j] = 1 and flag_ancestor[j, i] = -1. Otherwise, flag_ancestor[i, j] = flag_ancestor[j, i]  = 0
@@ -49,7 +51,10 @@ if __name__ == "__main__":
             if not(np.any(flag_ancestor[ancestor, ancestor_rest] == 1)): 
                 circles[i_circle].parents.add(circles[ancestor].id)
                 circles[ancestor].children.add(circles[i_circle].id)
-            
+    
+    circle_map = {circle.id: circle for circle in circles}
+    group_map = {circles: idx for idx, circles in enumerate(list(circle_map.keys()) + [-1,])}
+    
     # Write the circle hierarchical DAG into a json file
     edges = [dict(s=circles[i_circle].id, d=child) for i_circle in range(n_circle - 1) for child in circles[i_circle].children]
     vertices = {circles[i_circle].id: {"description": '{0} users: '.format(len(circles[i_circle].members)) + ', '.join(str(x) for x in circles[i_circle].members)} for i_circle in range(n_circle)}
@@ -79,7 +84,7 @@ if __name__ == "__main__":
     #print(users[2283])
     
     
-    circle_map = {circle.id: circle for circle in circles}
+    
     #for user, user_circles in users.items(): # if a user is in set A and set A is a subset of set B, then we don't say this user is in set B
     #    circle_to_remove = set()
     #    for circle_sub in user_circles:
@@ -92,16 +97,16 @@ if __name__ == "__main__":
     # Convert the circles that a user belong to into a tuple and count the number of circles it belong to
     users = {key: tuple(value) for key, value in users.items()}
     
-    group_map = {circles: idx for idx, circles in enumerate(list(circle_map.keys()) + [-1,])}
     
-    nodes = [dict(name = key, group = group_map[value[0]], circles = [circle for circle in value if circle != -1], groups = [group_map[circle] for circle in value]) for key, value in users.items()]
+    
+    nodes = [dict(name = key, group = group_map[random.choice(value)], circles = [circle for circle in value if circle != -1], groups = [group_map[circle] for circle in value]) for key, value in users.items()]
     
     user_map = {value: key for key, value in enumerate(users.keys())}
     links = [dict(source = user_map[link[0]], target = user_map[link[1]], value = 1) for link in links_raw]
     
     filename = "{0}.ego.json".format(user_id)
     with open(filename, 'w') as outfile:
-        json.dump({"nodes": nodes, "links": links}, outfile, indent=2)
+        json.dump({"nodes": nodes, "links": links, "ncircle": n_circle, "nuser": len(users)}, outfile, indent=2)
     
         
    

@@ -22,7 +22,10 @@
 </head>
 
 <body>
-    <h1>Facebook ego network data visualization</h1>
+    <h1>Facebook data visualization</h1>
+        <h2 id = "summary">Summary of the ego network</h2>
+            <p id = "ncircle"></p>
+            <p id = "nuser"></p>
         <h2 id = "hierarchy">Circle hierarchy</h2>
             <p id = "hierarchy"> </p>
             <p>We claim that circle <span lang="latex">\mathcal{A}</span> is a parent of circle <span lang="latex">\mathcal{B}</span> if <span lang="latex">\mathcal{A}\supsetneq\mathcal{B}</span> and there is no circle <span lang="latex">\mathcal{C}</span> such that <span lang="latex">\mathcal{A}\supsetneq\mathcal{C}\supsetneq\mathcal{B}</span>. The parent-child relationship is presented in the above interactive figure with a directed acyclic graph (DAG) using <a href="https://github.com/cpettitt/dagre-d3/wiki">dagre-d3</a>, where parents and children are represented with source/destination nodes, respectively. The figure can be played with as follows: </p>
@@ -36,40 +39,46 @@
             <ol>
                 <li>Drag any nodes to move the network around.</li>
                 <li>Place the mouse over any node to show "&lt;userID&gt;: &lt;circles&gt;"</li>
-                <li></li>
+                <li>Double click any node to toggle its color corresponding to the different circles that own this user.</li>
             </ol>
 
 <script id="js">
 
 var color = d3.scale.category20(); // Colors for different circles
 var width = 960,
-    height = 600; // Size of the figures
+    height = 960; // Size of the figures
     
 /* Plot the circle hierarchy graph */
 d3.json("{{ url_for('static', filename='%s.hierarchy.json' % userID) }}", function(error, data) {
-
+    
+    d3.select("p#ncircle").text("Number of circles: " + Object.keys(data.vertices).length + ".");
+    
     var g = new dagreD3.graphlib.Graph().setGraph({});
     
     // Add the user id to the titles
-    d3.select("h2#hierarchy").text("Circle hierarchy for User " + data.user);
-    d3.select("h2#ego").text("Ego network for User " + data.user);
+    d3.select("h1").text("Facebook data visualization for User " + data.user);
+    //d3.select("h2#hierarchy").text("Circle hierarchy for User " + data.user);
+    //d3.select("h2#ego").text("Ego network for User " + data.user);
 
+    
     Object.keys(data.vertices).forEach(function(vertex) {
         var value = data.vertices[vertex];
         value.label = "Circle" + vertex;
         value.rx = value.ry = 5;
         g.setNode(vertex, value);
     });
-
+    
     var iEdge = 0
     for (iEdge = 0; iEdge < data.edges.length; iEdge++) {
         g.setEdge(data.edges[iEdge].s, data.edges[iEdge].d, { label: "" });
     }
 
+
     // Change the color of each block
     var iVertex = 0
-    for (iVertex = 0; iVertex < Object.keys(data.vertices).length; iVertex++) {
+    for (iVertex = 0; iVertex < Object.keys(data.vertices).length; iVertex++) {   
         g.node(iVertex).style = "fill: " + color(iVertex);
+        alert( iVertex)
     }
 
     // Create the renderer
@@ -120,7 +129,8 @@ var svg = d3.select("p#ego")
         .attr("height", height);
     
 d3.json("{{ url_for('static', filename='%s.ego.json' % userID) }}", function(error, graph) {
-
+    d3.select("p#nuser").text("Number of users: " + graph.nodes.length + ".");
+    
     force
         .nodes(graph.nodes)
         .links(graph.links)
@@ -146,8 +156,10 @@ d3.json("{{ url_for('static', filename='%s.ego.json' % userID) }}", function(err
                 var ncircle = d.circles.length;
                 var idx = 0;
                 sel.on('dblclick', function() {
-                    idx = (idx + 1) % ncircle;
-                    sel.style('fill', function() { return color(groups[idx]); });
+                    if (ncircle != 0) {
+                        idx = (idx + 1) % ncircle;
+                        sel.style('fill', function() { return color(groups[idx]); });
+                    }
                 });
             })
         .call(force.drag);
