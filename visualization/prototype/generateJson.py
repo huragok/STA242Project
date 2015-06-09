@@ -13,7 +13,7 @@ class Circle:
     
 if __name__ == "__main__":
     path = "../../data/facebook/"
-    user_id = 698
+    user_id = 0
     filename_circle = "{0}{1}.circles".format(path, user_id)
     
     with open(filename_circle) as f:
@@ -80,21 +80,21 @@ if __name__ == "__main__":
     
     
     circle_map = {circle.id: circle for circle in circles}
-    for user, user_circles in users.items(): # if a user is in set A and set A is a subset of set B, then we don't say this user is in set B
-        circle_to_remove = set()
-        for circle_sub in user_circles:
-            for circle_sup in user_circles:
-                if circle_sub != circle_sup and circle_sub > 0 and (circle_sup in circle_map[circle_sub].parents):
-                    circle_to_remove.add(circle_sup)
+    #for user, user_circles in users.items(): # if a user is in set A and set A is a subset of set B, then we don't say this user is in set B
+    #    circle_to_remove = set()
+    #    for circle_sub in user_circles:
+    #        for circle_sup in user_circles:
+    #            if circle_sub != circle_sup and circle_sub > 0 and (circle_sup in circle_map[circle_sub].parents):
+    #                circle_to_remove.add(circle_sup)
                     
-        users[user] -= circle_to_remove
+    #    users[user] -= circle_to_remove
         
     # Convert the circles that a user belong to into a tuple and count the number of circles it belong to
     users = {key: tuple(value) for key, value in users.items()}
     
     group_map = {circles: idx for idx, circles in enumerate(list(circle_map.keys()) + [-1,])}
     
-    nodes = [dict(name = key, group = group_map[value[0]], ncircle = len(value), circles = [circle for circle in value if circle != -1], groups = [group_map[circle] for circle in value]) for key, value in users.items()]
+    nodes = [dict(name = key, group = group_map[value[0]], circles = [circle for circle in value if circle != -1], groups = [group_map[circle] for circle in value]) for key, value in users.items()]
     
     user_map = {value: key for key, value in enumerate(users.keys())}
     links = [dict(source = user_map[link[0]], target = user_map[link[1]], value = 1) for link in links_raw]
