@@ -8,4 +8,4 @@ To run the flask application one can follow the following steps:
 3. run "python visualization.py" to start a server
 4. Open a browser and head over to the url (http://127.0.0.1:5000/ by default) and have fun!
 
-
+We highly recommend using Chrome browser by which the dynamic/interactive visulization requires intensive computation could be better handled. 
