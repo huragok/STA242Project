@@ -14,7 +14,7 @@ class Circle:
     
 if __name__ == "__main__":
     path = "../../data/facebook/"
-    user_id = 1912
+    user_id = 698
     filename_circle = "{0}{1}.circles".format(path, user_id)
     
     with open(filename_circle) as f:
@@ -23,10 +23,9 @@ if __name__ == "__main__":
     lines_str = [line.split('\t') for line in lines_str]
     lines_num = [list(map(int, [line[0][6:]] + line[1:])) for line in lines_str]
     #FIXME remove identical circles
-    #member_id = {tuple(line[1:]): idx for idx, line in enumerate(lines_num)}
-    #circles = [Circle(idx, list(member)) for member, idx in member_id.items()]
-    
-    circles = [Circle(idx, list(line[1:])) for idx, line in enumerate(lines_num)]
+    #circles = [Circle(idx, list(line[1:])) for idx, line in enumerate(lines_num)]
+    member_id = {tuple(line[1:]): idx for idx, line in enumerate(lines_num)}
+    circles = [Circle(idx, list(member)) for member, idx in member_id.items()]
     
     n_circle = len(circles)
     flag_ancestor = np.zeros((n_circle, n_circle), dtype=np.int) # If the i-th circle is a superset of the j-th circle, then we call circle i is an ancector of j or j is an offspring of i. Correspondingly, we set flag_ancestor[i, j] = 1 and flag_ancestor[j, i] = -1. Otherwise, flag_ancestor[i, j] = flag_ancestor[j, i]  = 0
@@ -57,7 +56,7 @@ if __name__ == "__main__":
     
     # Write the circle hierarchical DAG into a json file
     edges = [dict(s=circles[i_circle].id, d=child) for i_circle in range(n_circle - 1) for child in circles[i_circle].children]
-    vertices = {circles[i_circle].id: {"description": '{0} users: '.format(len(circles[i_circle].members)) + ', '.join(str(x) for x in circles[i_circle].members)} for i_circle in range(n_circle)}
+    vertices = {circles[i_circle].id: {"description": '{0} users: '.format(len(circles[i_circle].members)) + ', '.join(str(x) for x in circles[i_circle].members), "group": group_map[circles[i_circle].id]} for i_circle in range(n_circle)}
     data ={"user": user_id, "vertices": vertices, "edges": edges}
     filename = "{0}.hierarchy.json".format(user_id)
     with open(filename, 'w') as outfile:
