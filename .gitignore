@@ -27,3 +27,4 @@ figs
 data
 code
 *.xml
+*.pyc

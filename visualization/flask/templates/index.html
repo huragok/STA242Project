@@ -11,22 +11,26 @@
 <h1>Facebook data visualization</h1>
 <h2>Data set description</h2>
 <p>
-In this part of our homework, we focus on the visualization of the <a href="http://snap.stanford.edu/data/egonets-Facebook.html">Facebook</a> data for community detection in ego networks. The publication and the C++ code related to this work can be found <a href="http://cseweb.ucsd.edu/~jmcauley/">here</a>. The original data consists of 10 ego networks originated from 10 different root users containing 50~800 users, each labeled into a few (potentially) "circles". Also, the features of each user in the ego network is available. The goal of this work is, given a single ego network, to infer the circles and the members corresponding to each circles based on the "links" in the network and the features of each user in the ego network.
+In this part of our homework, we focus on the visualization of the <a target="_blank" href="http://snap.stanford.edu/data/egonets-Facebook.html">Facebook</a> data for community detection in ego networks. The publication and the C++ code related to this work can be found <a target="_blank" href="http://cseweb.ucsd.edu/~jmcauley/">here</a>. The original data consists of 10 ego networks originated from 10 different root users containing 50~800 users, each labeled into a few (potentially) "circles". Also, the features of each user in the ego network is available. The goal of this work is, given a single ego network, to infer the circles and the members corresponding to each circles based on the "links" in the network and the features of each user in the ego network.
 </p>
 <br>
 <h2>Visualization</h2>
 <p>
-Our visualization mainly consists of 3 parts:
+Our visualization mainly consists of 2 parts:
+<ol>
+    <li>Visualization of the raw data, as the circles in each ego network is well-labeled.</li>
+    <li>Visualization of the community detection algorithm, where the user can set the expected number of communities.</li>
+</ol>
+Each part of visualization focuses on 2 aspects:
 <ol>
     <li>Find the hierarchical relationship in the original circles, i.e. which circles is fully contained in which circles.</li>
-    <li>Plot the ego networks with force-directed graph (FDG), i.e. visualizing the information embedded in the ego network and the labels without looking at the features. </li>
-    <li></li>
+    <li>Plot the ego networks with force-directed graph (FDG), i.e. visualizing the information embedded in the ego network and the labels/community detection results. </li>
 </ol>
 </p>
 <br>
 <h2>A few more comments</h2>
 <p>
-Some of the ego networks may contain so many circles and users that our visualization does not work well (e.g. 0, 107, 1684, 1912). This is especially true with the FDGs, which remains an active research area. A detailed review about FDG by Stephen G. Kobourov can be found <a href="http://cs.brown.edu/~rt/gdhandbook/">here</a>. A few other algorithms for FDG is available in the <a href="http://www.ogdf.net/doku.php/start">OGDF</a> library.
+Some of the ego networks may contain so many circles and users that our visualization does not work well (e.g. 0, 107, 1684, 1912). This is especially true with the FDGs, which remains an active research area. A detailed review about FDG by Stephen G. Kobourov can be found <a target="_blank" href="http://cs.brown.edu/~rt/gdhandbook/">here</a>. A few other algorithms for FDG is available in the <a target="_blank" href="http://www.ogdf.net/doku.php/start">OGDF</a> library.  Also the community detection algorithm would be computationally prohibitive for large networks. Nevertheless, for the ego network of user 414 and K = 3, the result seems nice enough.
 </p>
 
 <h2>Now it's time to rock!</h2>

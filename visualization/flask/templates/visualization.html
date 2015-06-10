@@ -2,7 +2,11 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>Facebook ego network data visualization: user {{ userID }}</title>
+{% if not K %}
+<title>Facebook ego network raw data visualization: user {{ userID }}</title>
+{% else %}
+<title>Facebook ego network community detection results visualization: user {{ userID }}</title>
+{% endif %}
 
 <!-- Pull in d3 and dagre-d3 dependencies -->
 <link rel="stylesheet" href="/static/demo.css"/>
@@ -22,21 +26,25 @@
 </head>
 
 <body>
-    <h1>Facebook data visualization</h1>
+    {% if not K %}
+    <h1>Facebook raw data visualization</h1>
+    {% else %}
+    <h1>Facebook community detection results visualization</h1>
+    {% endif %}
         <h2 id = "summary">Summary of the ego network</h2>
             <p id = "ncircle"></p>
             <p id = "nuser"></p>
             <p id = "nlink"></p>
         <h2 id = "hierarchy">Circle hierarchy</h2>
             <p id = "hierarchy"> </p>
-            <p>We claim that circle <span lang="latex">\mathcal{A}</span> is a parent of circle <span lang="latex">\mathcal{B}</span> if <span lang="latex">\mathcal{A}\supsetneq\mathcal{B}</span> and there is no circle <span lang="latex">\mathcal{C}</span> such that <span lang="latex">\mathcal{A}\supsetneq\mathcal{C}\supsetneq\mathcal{B}</span>. The parent-child relationship is presented in the above interactive figure with a directed acyclic graph (DAG) using <a href="https://github.com/cpettitt/dagre-d3/wiki">dagre-d3</a>, where parents and children are represented with source/destination nodes, respectively. The figure can be played with as follows: </p>
+            <p>We claim that circle <span lang="latex">\mathcal{A}</span> is a parent of circle <span lang="latex">\mathcal{B}</span> if <span lang="latex">\mathcal{A}\supsetneq\mathcal{B}</span> and there is no circle <span lang="latex">\mathcal{C}</span> such that <span lang="latex">\mathcal{A}\supsetneq\mathcal{C}\supsetneq\mathcal{B}</span>. The parent-child relationship is presented in the above interactive figure with a directed acyclic graph (DAG) using <a target="_blank" href="https://github.com/cpettitt/dagre-d3/wiki">dagre-d3</a>, where parents and children are represented with source/destination nodes, respectively. The figure can be played with as follows: </p>
             <ol>
                 <li>Scroll and drag to zoom in/out and move the figure.</li>
                 <li>Place the mouse over each block to see the memeber information of the corresponding circle.</li>
             </ol>
         <h2 id="ego">Ego network</h2>
             <p id = "ego"> </p>
-            <p>The above ego network figure are plotted with <a href="http://d3js.org/">d3</a> force directed graph. This figure can be played with as follows:</p>
+            <p>The above ego network figure are plotted with <a target="_blank" href="http://d3js.org/">d3</a> force directed graph. This figure can be played with as follows:</p>
             <ol>
                 <li>Drag any nodes to move the network around.</li>
                 <li>Place the mouse over any node to show "&lt;userID&gt;: &lt;circles&gt;"</li>
@@ -49,6 +57,7 @@
                 <input type="number" name="K">
                 <input id="userID" type="hidden" name="userID">
                 <input type="submit" value="Submit">
+                <br><br>
             </form>
         {% endif %}
 
@@ -75,8 +84,11 @@ d3.json("{{ url_for('static', filename='%s_%s.hierarchy.json'%(userID, K)) }}", 
     var g = new dagreD3.graphlib.Graph().setGraph({});
     
     // Add the user id to the titles
-    d3.select("h1").text("Facebook data visualization for User " + data.user);
-    
+    {% if not K %}
+    d3.select("h1").text("Facebook raw data visualization for User " + data.user);
+    {% else %}
+    d3.select("h1").text("Facebook community detection results visualization for User " + data.user);
+    {% endif %}
     Object.keys(data.vertices).forEach(function(vertex) {
         var value = data.vertices[vertex];
         value.label = "Circle" + vertex;
