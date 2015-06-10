@@ -11,7 +11,7 @@
 <h1>Facebook data visualization</h1>
 <h2>Data set description</h2>
 <p>
-In this part of our homework, we focus on the visualization of the <a target="_blank" href="http://snap.stanford.edu/data/egonets-Facebook.html">Facebook</a> data for community detection in ego networks. The publication and the C++ code related to this work can be found <a target="_blank" href="http://cseweb.ucsd.edu/~jmcauley/">here</a>. The original data consists of 10 ego networks originated from 10 different root users containing 50~800 users, each labeled into a few (potentially) "circles". Also, the features of each user in the ego network is available. The goal of this work is, given a single ego network, to infer the circles and the members corresponding to each circles based on the "links" in the network and the features of each user in the ego network.
+In this part of our homework, we focus on the visualization of the <a target="_blank" href="http://snap.stanford.edu/data/egonets-Facebook.html">Facebook</a> data for community detection in ego networks. The publication and the C++ code related to this work can be found <a target="_blank" href="http://cseweb.ucsd.edu/~jmcauley/">here</a>. The original data consists of 10 ego networks originated from 10 different root users containing 50~800 users, each labeled into a few (potentially overlapping) "circles". Also, the features of each user in the ego network is available. The goal of this work is, given a single ego network, to infer the circles and the members corresponding to each circles based on the "links" in the network and the features of each user in the ego network.
 </p>
 <br>
 <h2>Visualization</h2>
@@ -23,7 +23,7 @@ Our visualization mainly consists of 2 parts:
 </ol>
 Each part of visualization focuses on 2 aspects:
 <ol>
-    <li>Find the hierarchical relationship in the original circles, i.e. which circles is fully contained in which circles.</li>
+    <li>Find the hierarchical relationship in the labeled/detected circles, i.e. which circles is fully contained in which circles.</li>
     <li>Plot the ego networks with force-directed graph (FDG), i.e. visualizing the information embedded in the ego network and the labels/community detection results. </li>
 </ol>
 </p>

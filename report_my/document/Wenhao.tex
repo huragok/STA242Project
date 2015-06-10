@@ -1,0 +1,116 @@
+\section{Data Visualization on the Facebook Data}
+
+\subsection{Data Set Description}
+In this part of our homework, we focus on the visualization of the
+Facebook data~\cite{facebook} for community detection in ego
+networks~\cite{leskovec2012learning}.
+The publication and the C++ code related to this work can be found at this
+webpage~\cite{homepagemcauley}. The original data consists of 10 ego networks
+originated from 10 different root users containing 50~800 users, each labeled into a few
+(potentially overlapping) "circles". Also, the features of each user in the ego
+network is available. The goal of~\cite{leskovec2012learning} is, given a single
+ego network, to infer the circles and the members corresponding to each circle based on the
+links and the features of each user in the ego network. 
+
+\subsection{Framework}
+To enable a dynamic, interactive visualization of the original dataset and the
+community detection algorithm in~\cite{leskovec2012learning} using the source
+code available at~\cite{homepagemcauley}, we build a light-weighted
+Flask application. We process the original data in Python and generate
+.json files and pass it to the webpages, which contains a piece of javascript
+code using d3 library to generate .svg figures and some text information.
+
+Our visualization mainly consists of 2 parts:
+\begin{enumerate}
+    \item Visualization of the raw data, as the circles in each ego network is
+    well-labeled.
+    \item Visualization of the community detection algorithm, where the user can
+    set the expected number of communities.
+\end{enumerate}
+Each part of visualization focuses on 2 aspects:
+\begin{enumerate}
+    \item Find the hierarchical relationship in the labeled/deteted circles,
+    i.e. which circles is fully contained in which circles. Since the
+    hierarchical relationship can be represented with a directed acyclic graph
+    (DAG), here we make use of the dagre-d3 library~\cite{dagred3} to plot the
+    .svg figures.
+    \item Plot the ego networks with force-directed graph (FDG), i.e.
+    visualizing the information embedded in the ego network and the
+    labels/community detection results. For this project we use d3's force
+    directed layout functionalities. Though it is easy to implement, we noticed
+    that it is extremely computationally intensive for relatively large ego
+    networks. We refer to~\cite{kobourov2004force} and~\cite{ogdf} for a review
+    and some implementations of more advanced FDG layout algorithms. The integration of
+    more advanced FDG algorithm is left to our future works.
+\end{enumerate}
+
+\subsection{Examples}
+Our visualization on the Facebook data starts with an index page where a brief
+introduction (and a few disclaimers) are presented. Then the user gets to choose
+which ego network to visualize, as shown in Fig.~\ref{fig:page1} (Here we pick
+the ego network corresponding to user 414).
+
+\begin{figure}[!t]
+    \centering
+    \includegraphics[width=150mm]{figs/page1.png}
+    \caption{The index page.}
+    \label{fig:page1}
+\end{figure}
+
+When submitted, a new tab is opened presenting the visualization of the original
+data (Fig.~\ref{fig:page2}). This page mainly consists of 4 parts:
+\begin{figure}[!t]
+    \noindent\makebox[\textwidth][c]{
+    \begin{minipage}[c]{1\linewidth}
+      \centering
+      \centerline{\includegraphics[width=1.0\linewidth]{figs/page2_12.png}}
+      \centerline{(a) Summary and circle hierarchy.}\medskip
+    \end{minipage}}
+    \begin{minipage}[b]{1\linewidth}
+      \centering
+      \centerline{\includegraphics[width=1.0\linewidth]{figs/page2_3.png}}
+      \centerline{(b) Force Directed Graph (FDG) of the ego network.}\medskip
+    \end{minipage}
+    \caption{Visualization of the original labeled data.}
+    \label{fig:page2}
+\end{figure}
+\begin{enumerate}
+    \item A brief summary on the orignal data: this ego network has 7 unique
+    circles, 155 users and 3386 edges.
+    \item The hierarchy graph of the circles. This figure is interactive in
+    that when placing the mouse over each block, the number/indices of members
+    in the corresponding circles will be shown. Also the figure can be zoomed
+    and moved by scrolling/dragging.
+    \item The FDG of the ego network. Users in different circles are colored
+    differently (in accordance with the hierarchy graph), and the users in
+    different numbers of circles (due to overlapping) are represented with
+    different types of node as described in the legend. This figure is
+    interactive in that 
+    \begin{itemize}
+        \item The nodes can be dragged to move under the influence of the
+        forces.
+        \item When placing the mouse over any node, the corresponding user ID
+        and the circle IDs which contains this user will be shown.
+        \item For user contained in multiple circles, its color can be
+        toggled among the colors assigned to each of these circles by double
+        clicking the corresponding node.
+    \end{itemize}
+    \item Finally, the user gets to run the community detection algorithm by
+    specifying $K$, the number of expected circles (Here we pick $K=3$).
+\end{enumerate}
+
+The action in response to the client's submitting a $K$ is to looking for the
+corresponding community detection results saved in a .out file. If it does not
+exist, the server will run the community detection algorithm on the fly. Then
+the detection results are processed into json files and a third page is rendered
+using the same template as the second page (Fig.~\ref{fig:page3}).
+Unfortunately, we can see that the detection results results are quite different
+from the labeled data. In fact, our test show that the algorithm is highly
+sensitive to its parameters.
+
+\begin{figure}[!t]
+    \centering
+    \includegraphics[width=150mm]{figs/page3.png}
+    \caption{Visualization of the community detection results.}
+    \label{fig:page3}
+\end{figure}

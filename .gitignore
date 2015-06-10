@@ -25,6 +25,5 @@ Debug
 *.out
 figs
 data
-code
 *.xml
 *.pyc
