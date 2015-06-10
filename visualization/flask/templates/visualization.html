@@ -42,6 +42,15 @@
                 <li>Place the mouse over any node to show "&lt;userID&gt;: &lt;circles&gt;"</li>
                 <li>Double click any node to toggle its color corresponding to the different circles that own this user.</li>
             </ol>
+        {% if not K %}
+        <h2 id="execute">Try the community detection algorithm</h2>
+            <form action="/execute" method="POST" target="_blank">
+                <b>Please specify <i>K</i>:</b>
+                <input type="number" name="K">
+                <input id="userID" type="hidden" name="userID">
+                <input type="submit" value="Submit">
+            </form>
+        {% endif %}
 
 <script id="js">
 
@@ -49,9 +58,18 @@ var color = d3.scale.category20(); // Colors for different circles
 var width = 960,
     height = 960; // Size of the figures
     
-/* Plot the circle hierarchy graph */
-d3.json("{{ url_for('static', filename='%s.hierarchy.json' % userID) }}", function(error, data) {
     
+{% if not K %}
+d3.select("input#userID").property("value", {{ userID }});
+//alert({{ userID }});
+{% endif %}
+
+/* Plot the circle hierarchy graph */
+{% if not K %}
+d3.json("{{ url_for('static', filename='%s.hierarchy.json' % userID) }}", function(error, data) {
+{% else %}
+d3.json("{{ url_for('static', filename='%s_%s.hierarchy.json'%(userID, K)) }}", function(error, data) {
+{% endif %} 
     d3.select("p#ncircle").text("Number of unique circles: " + Object.keys(data.vertices).length + ".");
     
     var g = new dagreD3.graphlib.Graph().setGraph({});
@@ -154,8 +172,11 @@ legend.selectAll('text')
         var text = "In " + i + " circles ";
         return text;
     });
-    
+{% if not K %}
 d3.json("{{ url_for('static', filename='%s.ego.json' % userID) }}", function(error, graph) {
+{% else %}
+d3.json("{{ url_for('static', filename='%s_%s.ego.json' %(userID, K)) }}", function(error, graph) {
+{% endif %}
     d3.select("p#nuser").text("Number of users: " + graph.nodes.length + ".");
     d3.select("p#nlink").text("Number of links: " + Object.keys(graph.links).length + ".");
     
